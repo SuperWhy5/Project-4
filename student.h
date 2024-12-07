@@ -1,16 +1,24 @@
+#ifndef STUDENT_H
+#define STUDENT_H
+
+#include <iostream>
+#include <vector>
+
 class Student {
     private:
-        string name;
+        std::string name;
 
-        vector<string> recommendedCourses;
+        std::vector<std::string> recommendedCourses;
     
     public:
-        Student(Const string& name);
+        Student(const std::string& name);
 
-        string getName() const;
+        std::string getName() const;
 
-        void addRecommendation(const string& course);
+        void addRecommendation(const std::string& course);
 
-        vector<string> getRecommendations() const;
+        std::vector<std::string> getRecommendations() const;
         
-}
+};
+
+#endif

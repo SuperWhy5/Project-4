@@ -1,15 +1,24 @@
+#ifndef RECOMMMEND_H
+#define RECOMMMEND_H
+
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <set>
+#include "student.h"
+
 class RecommendationSystem{
     private:
-        map<string, Student> students;
+        std::map<std::string, Student> students;
 
-        set<string> course;
+        std::set<std::string> course;
 
     public:
-        void loadData(const string& filename);
+        void loadData(const std::string& filename);
 
-        vector<string> generateRecommendationsForStudent(const string& studentName) const;
+        std::vector<std::string> generateRecommendationsForStudent(const std::string& studentName) const;
 
-        void outputRecommendations(ostream& out) const;
+        void outputRecommendations(std::ostream& out) const;
 
         int getTotalStudents() const;
 
@@ -17,4 +26,6 @@ class RecommendationSystem{
 
         int getTotalRecommendations() const;
         
-}
+};
+
+#endif
