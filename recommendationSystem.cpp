@@ -1,104 +1,104 @@
-#include <iostream>
-#include <algorithm>
-#include <sstream>
 #include "recommendationSystem.h"
+#include <sstream>
+#include <algorithm>
+#include <iostream>
 
-void RecommendationSystem::loadData(const std::string& filename){
-    std::ifstream myFile(filename);
+void RecommendationSystem::loadData(const std::string& filename) {
+    std::ifstream infile(filename);
+    if (!infile) {
+        std::cerr << "Error: Unable to open file " << filename << std::endl;
+        return;
+    }
 
     std::string line;
-    while(std::getline(myFile, line))
+    while (std::getline(infile, line)) {
         std::istringstream iss(line);
-        std::string studentName;
-        if(std::getline(iss, studentName, ':')){
-            std::string listOfCourses;
-            if(std::getline(iss, listOfCourses)){
-                Student student(studentName);
-                std::istringstream coursesStream(listOfCourses);
-                std::string course;
-                while(std::getline(coursesStream, course, ',')){
-                    course.erase(course.find_last_not_of(" \t\n\r")+1);
-                    course.erase(0, course.find_last_not_of(" \t\n\r"));
+        std::string studentName, coursesPart;
 
-                    student.addRecommendation(course);
-                    this-> course.insert(course);
-                }
-                students[studentName] = student;
-            }
+        std::getline(iss, studentName, ':');
+        std::getline(iss, coursesPart);
+
+        studentName.erase(0, studentName.find_first_not_of(" \t"));
+        studentName.erase(studentName.find_last_not_of(" \t") + 1);
+
+        Student student(studentName);
+        std::istringstream coursesStream(coursesPart);
+        std::string course;
+
+        while (std::getline(coursesStream, course, ',')) {
+            course.erase(0, course.find_first_not_of(" \t"));
+            course.erase(course.find_last_not_of(" \t") + 1);
+            courses.insert(course); // Correctly updates the set
         }
+
+        students[studentName] = student;
+    }
 }
 
-std::vector<std::string> RecommendationSystem::generateRecommendationsForStudent(const std::string& studentName) const{
-    auto it = student.find(studentName);
-    
-    const Student& student = it->second;
-    std::vector<std::string> studentCourses = student.getRecommendations();
+std::vector<std::string> RecommendationSystem::generateRecommendationsForStudent(const std::string& studentName) const {
     std::map<std::string, int> coursePopularity;
 
-     for (const auto& pair : students) {
-        if (pair.first == studentName) continue; // Skip the current student
-
-        for (const auto& course : pair.second.getRecommendations()) {
-            if (std::find(studentCourses.begin(), studentCourses.end(), course) == studentCourses.end()) {
+    for (const auto& [otherStudentName, otherStudent] : students) {
+        if (otherStudentName != studentName) {
+            auto otherCourses = otherStudent.getRecommendations();
+            for (const auto& course : otherCourses) {
                 coursePopularity[course]++;
             }
         }
     }
 
     std::vector<std::string> recommendations;
-    for (const auto& pair : coursePopularity) {
-        recommendations.push_back(pair.first);
+    for (const auto& [course, count] : coursePopularity) {
+        recommendations.push_back(course);
     }
+
     std::sort(recommendations.begin(), recommendations.end(), [&coursePopularity](const std::string& a, const std::string& b) {
         if (coursePopularity[a] != coursePopularity[b]) {
             return coursePopularity[a] > coursePopularity[b];
         }
-        return a < b; // Alphabetical order for ties
+        return a < b;
     });
 
-    // Limit to top 3 recommendations
-    if (recommendations.size() > 3) {
-        recommendations.resize(3);
-    }
     return recommendations;
 }
 
-void RecommendationSystem::outputRecommendations(std::ostream& out) const{
+void RecommendationSystem::outputRecommendations(std::ostream& out) const {
     int totalRecommendations = 0;
 
-    for (const auto& pair : students) {
-        out << pair.first << ": [";
-        std::vector<std::string> recommendations = generateRecommendationsForStudent(pair.first);
+    // Iterate over each student
+    for (const auto& [name, student] : students) {
+        auto recommendations = generateRecommendationsForStudent(name);
+        totalRecommendations += recommendations.size();
 
+        // Output the recommendations in the required format
+        out << name << ": [";
         for (size_t i = 0; i < recommendations.size(); ++i) {
             out << recommendations[i];
-            if (i < recommendations.size() - 1) {
+            if (i != recommendations.size() - 1) {
                 out << ", ";
             }
         }
         out << "]\n";
-
-        totalRecommendations += recommendations.size();
     }
 
+    // Output the global summary
     out << "Total Students: " << getTotalStudents() << "\n";
     out << "Total Courses: " << getTotalCourses() << "\n";
     out << "Total Recommendations: " << totalRecommendations << "\n";
 }
 
-int RecommendationSystem::getTotalStudents() const{
+int RecommendationSystem::getTotalStudents() const {
     return students.size();
 }
 
-int RecommendationSystem::getTotalCourses() const{
-    return course.size()
+int RecommendationSystem::getTotalCourses() const {
+    return courses.size();
 }
 
-int RecommendationSystem::getTotalRecommendations() const{
+int RecommendationSystem::getTotalRecommendations() const {
     int total = 0;
-    for (const auto& pair : students) {
-        total += pair.second.getRecommendations().size();
+    for (const auto& [_, student] : students) {
+        total += student.getRecommendations().size();
     }
-    return total; 
+    return total;
 }
-

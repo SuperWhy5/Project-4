@@ -11,7 +11,7 @@ class RecommendationSystem{
     private:
         std::map<std::string, Student> students;
 
-        std::set<std::string> course;
+        std::set<std::string> courses;
 
     public:
         void loadData(const std::string& filename);

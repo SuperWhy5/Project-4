@@ -1,18 +1,13 @@
 #include <iostream>
-#include <fstream>
-#include "course.h"
-#include "student.h"
 #include "recommendationSystem.h"
 
-using namespace std;
+int main() {
+    RecommendationSystem rs;
+    rs.loadData("Test_c_1.txt");
 
-int main(){
-    std::ifstream myFile("Test_c_1.txt");
+    std::cout << "Total Students: " << rs.getTotalStudents() << std::endl;
+    std::cout << "Total Courses: " << rs.getTotalCourses() << std::endl;
 
-    RecommendationSystem recommend;
-    
-    recommend.loadData(myFile);
-
-    recommend.outputRecommendations(std::cout);
+    rs.outputRecommendations(std::cout);
     return 0;
 }
