@@ -1,12 +1,10 @@
 #include <iostream>
-#include "recommendationSystem.h"
+#include "RecommendationSystem.h"
 
-int main() {
+int main(int argc, char* argv[]) {
+
     RecommendationSystem rs;
-    rs.loadData("Test_c_1.txt");
-
-    std::cout << "Total Students: " << rs.getTotalStudents() << std::endl;
-    std::cout << "Total Courses: " << rs.getTotalCourses() << std::endl;
+    rs.loadData(argv[1]);
 
     rs.outputRecommendations(std::cout);
     return 0;

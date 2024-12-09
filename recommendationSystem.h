@@ -26,6 +26,8 @@ class RecommendationSystem{
 
         int getTotalRecommendations() const;
         
+
+        
 };
 
 #endif

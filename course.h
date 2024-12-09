@@ -8,6 +8,8 @@ class Course{
         std::string id;
     
     public:
+        Course();
+
         Course(const std::string& id);
         
         std::string getId() const;

@@ -11,6 +11,8 @@ class Student {
         std::vector<std::string> recommendedCourses;
     
     public:
+        Student();
+
         Student(const std::string& name);
 
         std::string getName() const;

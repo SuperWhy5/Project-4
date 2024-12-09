@@ -1,4 +1,10 @@
+
 #include "student.h"
+#include <string>
+#include <vector>
+#include <algorithm>
+
+Student::Student() : name("") {}
 
 Student::Student(const std::string& name) : name(name) {}
 
@@ -7,7 +13,7 @@ std::string Student::getName() const {
 }
 
 void Student::addRecommendation(const std::string& course) {
-    if (recommendedCourses.size() < 3) {
+    if (std::find(recommendedCourses.begin(), recommendedCourses.end(), course) == recommendedCourses.end()) {
         recommendedCourses.push_back(course);
     }
 }
@@ -15,3 +21,6 @@ void Student::addRecommendation(const std::string& course) {
 std::vector<std::string> Student::getRecommendations() const {
     return recommendedCourses;
 }
+
+
+
