@@ -6,8 +6,9 @@
 
 Student::Student() : name("") {}
 
-Student::Student(const std::string& name) : name(name) {}
-
+Student::Student(const string& name) : name(name) {
+    recommendedCourses = vector<string>();
+}
 std::string Student::getName() const {
     return name;
 }

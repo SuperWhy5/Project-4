@@ -1,18 +1,19 @@
 #ifndef COURSE_H
 #define COURSE_H
 
-#include <iostream>
+#include <string>
+using namespace std;
 
 class Course{
     private:
-        std::string id;
+        string id;
     
     public:
         Course();
 
-        Course(const std::string& id);
+        Course(const string& id);
         
-        std::string getId() const;
+        string getId() const;
 
         bool operator == (const Course& other) const;
 

@@ -1,8 +1,9 @@
 #ifndef STUDENT_H
 #define STUDENT_H
 
-#include <iostream>
+#include <string>
 #include <vector>
+using namespace std;
 
 class Student {
     private:

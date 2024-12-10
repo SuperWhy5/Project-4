@@ -3,76 +3,114 @@
 #include <sstream>
 #include <iostream>
 #include <algorithm>
+#include <unordered_set>
+#include <unordered_map>
 
-void RecommendationSystem::loadData(const std::string& filename) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error: Could not open file " << filename << std::endl;
-        return;
-    }
 
-    std::string line;
-    while (std::getline(file, line)) {
-        auto colonPos = line.find(':');
-        if (colonPos == std::string::npos) continue;
+void RecommendationSystem::loadData(const string& filename) {
 
-        std::string studentName = line.substr(0, colonPos);
-        std::string coursesStr = line.substr(colonPos + 1);
+    ifstream file(filename);
+
+    string line;
+
+    while (getline(file, line)) {
+
+        istringstream iss(line);
+
+        string studentName, coursesString;
+
+        getline(iss, studentName, ':');
+
+        getline(iss, coursesString);
 
         Student student(studentName);
-        std::istringstream courseStream(coursesStr);
-        std::string course;
-        while (std::getline(courseStream, course, ',')) {
-            course.erase(0, course.find_first_not_of(" "));
-            course.erase(course.find_last_not_of(" ") + 1);
 
-            student.addRecommendation(course);
+        istringstream courseStream(coursesString);
+
+        string course;
+
+        while (courseStream >> course) {
+            if (course.back() == ',') {
+
+                course.pop_back();
+            }
+
             courses.insert(course);
+
+            popular[course][studentName]++;
+
         }
+
         students[studentName] = student;
     }
-
-    // Suppress output entirely for test_c_1.txt
-    if (filename == "test_c_1.txt") {
-        return;
-    }
+    file.close();
 }
 
 
-std::vector<std::string> RecommendationSystem::generateRecommendationsForStudent(const std::string& studentName) const {
-    std::map<std::string, int> coursePopularity;
-    const auto& takenCourses = students.at(studentName).getRecommendations();
+vector<string> RecommendationSystem::generateRecommendationsForStudent(const string& studentName) const {
+    vector<string> recommended;
 
-    for (const auto& [otherName, otherStudent] : students) {
-        if (otherName != studentName) {
-            for (const auto& course : otherStudent.getRecommendations()) {
-                if (std::find(takenCourses.begin(), takenCourses.end(), course) == takenCourses.end()) {
-                    coursePopularity[course]++;
+if (students.find(studentName) == students.end()) {
+    return recommended;
+}
+
+unordered_set<string> studentCourses;
+for (auto connect1 = popular.begin(); connect1 != popular.end(); ++connect1) {
+    const string& course = connect1->first;
+    const map<string, int>& SM = connect1->second;
+    if (SM.find(studentName) != SM.end()) {
+        studentCourses.insert(course);
+    }
+}
+
+map<string, int> recommendationScores;
+
+for (auto connect1 = popular.begin(); connect1 != popular.end(); ++connect1) {
+    const string& course = connect1->first;
+    const map<string, int>& SM = connect1->second;
+
+        if (SM.find(studentName) == SM.end()) {
+            int score = 0;
+            bool sharecourse = false;
+
+            for (auto connect1 = SM.begin(); connect1 != SM.end(); ++connect1) {
+                const string& otherStudent = connect1->first;
+                int count = connect1->second;
+
+                for (auto courseconnect1 = studentCourses.begin(); courseconnect1 != studentCourses.end(); ++courseconnect1) {
+                    const string& commonCourses = *courseconnect1;
+                    if (popular.at(commonCourses).find(otherStudent) != popular.at(commonCourses).end()) {
+                        score += count;
+                        sharecourse = true;
+                        break;
+                    }
                 }
             }
+            if (sharecourse) {
+                recommendationScores[course] = score;
+            }
+            
         }
     }
 
-    std::vector<std::string> recommendations;
-    for (const auto& [course, count] : coursePopularity) {
-        recommendations.push_back(course);
+    vector<pair<int, string>> sortedRecommendations;
+    for (auto connect1 = recommendationScores.begin(); connect1 != recommendationScores.end(); ++connect1) {
+        sortedRecommendations.push_back(make_pair(-connect1->second, connect1->first));
     }
+    sort(sortedRecommendations.begin(), sortedRecommendations.end());
 
-    std::sort(recommendations.begin(), recommendations.end(), [&coursePopularity](const std::string& a, const std::string& b) {
-        if (coursePopularity[a] != coursePopularity[b]) {
-            return coursePopularity[a] > coursePopularity[b];
+    for (auto connect1 = sortedRecommendations.begin(); connect1 != sortedRecommendations.end(); ++connect1) {
+        if (recommended.size() < 3) {
+            recommended.push_back(connect1->second);
+        } else {
+            break;
         }
-        return a < b;
-    });
-
-    if (recommendations.size() > 3) {
-        recommendations.resize(3);
     }
 
-    return recommendations;
+    return recommended;
 }
 
-void RecommendationSystem::outputRecommendations(std::ostream& out) const {
+void RecommendationSystem::outputRecommendations(ostream& out) const {
     int totalRecommendations = 0;
 
     for (const auto& [name, student] : students) {
